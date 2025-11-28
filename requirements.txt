@@ -6,3 +6,4 @@ python-dotenv>=1.0
 dj-database-url>=1.0
 drf-yasg>=1.21
 django-redis>=5.2
+djangorestframework-simplejwt>=2.8
