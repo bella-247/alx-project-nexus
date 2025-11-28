@@ -1,3 +1,33 @@
+Online Poll System Backend
+==========================
+
+This repository contains a Django REST backend for an online poll/voting system intended for real-time result computation and scalability.
+
+Quick start (development with Docker)
+
+1. Copy environment file:
+
+```bash
+cp .env.example .env
+```
+
+2. Build and run with docker-compose:
+
+```bash
+docker compose up --build
+```
+
+3. API docs will be at `http://localhost:8000/api/docs`
+
+Notes
+- Uses Postgres in docker-compose for realistic development.
+- If you can't run Docker, edit `polls_project/settings.py` to use SQLite.
+
+Endpoints (high level)
+- `POST /api/polls/` - create a poll with options
+- `GET /api/polls/` - list polls
+- `POST /api/polls/{poll_id}/vote/` - cast a vote (provide `voter_id` and `option_id`)
+- `GET /api/polls/{poll_id}/results/` - get option counts (real-time)
 # alx-project-nexus
 
 ## 1. Overview
