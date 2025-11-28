@@ -32,7 +32,7 @@ Visit: `http://127.0.0.1:8000/api/docs/`
 - `POST /api/votes/` - Cast a vote
   - body: {"poll":"<poll_uuid>","option":"<option_uuid>","voter_id":"<identifier>"}
 
-- `GET /api/polls/<poll_id>/results/` - Returns option vote counts and total votes
+- `GET /api/polls/<poll_id>/results/` - Returns option vote counts and total votes. This endpoint uses a short-lived cache for performance and is invalidated automatically when votes or options change.
 
 ## Notes on duplicate prevention
 

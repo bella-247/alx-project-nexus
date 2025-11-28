@@ -17,6 +17,10 @@ cp .env.example .env
 docker compose up --build
 ```
 
+If you want Redis caching enabled (recommended for better performance of the results endpoint), copy `.env.example` to `.env` and make sure `REDIS_URL` is set (the default `.env.example` contains `REDIS_URL=redis://redis:6379/1`). The provided `docker-compose.yml` includes a `redis` service, so `docker compose up --build` will start Redis automatically.
+
+To run without Redis, either remove the `redis` service in `docker-compose.yml` or set `REDIS_URL` to an external redis instance.
+
 3. API docs will be at `http://localhost:8000/api/docs`
 
 Notes

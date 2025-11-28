@@ -120,3 +120,24 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'APIs for polls, voting and real-time results',
     'VERSION': '1.0.0',
 }
+
+# Caching (Redis) - optional. If REDIS_URL is provided, use it; otherwise use local memory cache for dev
+REDIS_URL = os.environ.get('REDIS_URL') or os.environ.get('REDIS_HOST')
+if REDIS_URL:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': REDIS_URL if '://' in REDIS_URL else f'redis://{REDIS_URL}:6379/1',
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            }
+        }
+    }
+else:
+    # fallback simple in-memory cache for development/testing
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'unique-snowflake',
+        }
+    }
