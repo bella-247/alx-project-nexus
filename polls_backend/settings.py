@@ -125,6 +125,18 @@ REST_FRAMEWORK.setdefault('DEFAULT_AUTHENTICATION_CLASSES', [
     'rest_framework.authentication.SessionAuthentication',
 ])
 
+# Default permission: read-only for unauthenticated, write for authenticated
+REST_FRAMEWORK.setdefault('DEFAULT_PERMISSION_CLASSES', [
+    'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+])
+
+# Pagination defaults for list endpoints
+REST_FRAMEWORK.setdefault('DEFAULT_PAGINATION_CLASS', 'rest_framework.pagination.PageNumberPagination')
+REST_FRAMEWORK.setdefault('PAGE_SIZE', 10)
+
+# Allow anonymous voting via env var (set to '1' to allow unauthenticated votes)
+ALLOW_ANONYMOUS_VOTE = os.environ.get('ALLOW_ANONYMOUS_VOTE', '0') == '1'
+
 # Simple JWT settings
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),

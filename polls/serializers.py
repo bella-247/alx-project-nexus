@@ -12,7 +12,8 @@ class OptionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Option
-        fields = ('id', 'text', 'order', 'votes', 'voted')
+        # frontend expects id, text, votes, voted
+        fields = ('id', 'text', 'votes', 'voted')
 
     def get_voted(self, obj):
         # expects voter_id in serializer context to mark which option the voter chose
@@ -74,13 +75,33 @@ class PollDetailSerializer(serializers.ModelSerializer):
     views = serializers.IntegerField(source='views')
     createdAt = serializers.DateTimeField(source='created_at')
     updatedAt = serializers.DateTimeField(source='updated_at')
+    expiresAt = serializers.DateTimeField(source='expires_at', allow_null=True)
+    isActive = serializers.BooleanField(source='is_active')
 
     class Meta:
         model = Poll
         fields = (
-            'id', 'question', 'description', 'createdAt', 'updatedAt', 'expires_at', 'is_active',
+            'id', 'question', 'description', 'createdAt', 'updatedAt', 'expiresAt', 'isActive',
             'options', 'totalVotes', 'hasVoted', 'views', 'createdBy', 'createdByUser'
         )
+
+
+class PollListSerializer(serializers.ModelSerializer):
+    question = serializers.CharField(source='title')
+    createdAt = serializers.DateTimeField(source='created_at')
+    totalVotes = serializers.SerializerMethodField()
+    createdBy = serializers.SerializerMethodField()
+    isActive = serializers.BooleanField(source='is_active')
+
+    class Meta:
+        model = Poll
+        fields = ('id', 'question', 'createdAt', 'isActive', 'totalVotes', 'views', 'createdBy')
+
+    def get_totalVotes(self, obj):
+        return Vote.objects.filter(poll=obj).count()
+
+    def get_createdBy(self, obj):
+        return str(obj.created_by.id) if obj.created_by else None
 
     def get_totalVotes(self, obj):
         # efficient count across options

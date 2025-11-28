@@ -8,6 +8,7 @@ from .serializers import PollCreateSerializer, PollDetailSerializer, VoteSeriali
 from drf_spectacular.utils import extend_schema, OpenApiExample
 from django.core.cache import cache
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated
 
 
 @extend_schema(
@@ -34,7 +35,9 @@ class PollListCreateView(generics.ListCreateAPIView):
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
-            return PollDetailSerializer
+            # use a lighter serializer for list responses
+            from .serializers import PollListSerializer
+            return PollListSerializer
         return PollCreateSerializer
 
     def list(self, request, *args, **kwargs):
@@ -66,6 +69,12 @@ class PollDetailView(generics.RetrieveAPIView):
             ctx['voter_id'] = voter_id
         ctx['request'] = self.request
         return ctx
+    
+    def retrieve(self, request, *args, **kwargs):
+        """Return poll wrapped in {'poll': ...} to match frontend PollResponse shape."""
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, context=self.get_serializer_context())
+        return Response({'poll': serializer.data})
 
 
 @extend_schema(
@@ -83,6 +92,12 @@ class PollDetailView(generics.RetrieveAPIView):
 class VoteCreateView(generics.CreateAPIView):
     serializer_class = VoteSerializer
     queryset = Vote.objects.all()
+    # permission: require auth by default, but allow anonymous voting via env flag
+    def get_permissions(self):
+        from django.conf import settings
+        if getattr(settings, 'ALLOW_ANONYMOUS_VOTE', False):
+            return [IsAuthenticatedOrReadOnly()]
+        return [IsAuthenticated()]
 
     def create(self, request, *args, **kwargs):
         # If user is authenticated, do not rely on client-supplied userId
@@ -103,7 +118,7 @@ class PollResultsView(APIView):
         # try cached value first
         cached = cache.get(cache_key)
         if cached is not None:
-            return Response(cached)
+            return Response({'poll': cached})
 
         poll = get_object_or_404(Poll.objects.prefetch_related('options'), pk=pk)
         # annotate options with vote counts efficiently
@@ -117,8 +132,8 @@ class PollResultsView(APIView):
             'description': poll.description,
             'options': serializer.data,
             'totalVotes': sum(item['votes'] for item in serializer.data),
-            'createdAt': poll.created_at,
-            'updatedAt': poll.updated_at,
+            'createdAt': poll.created_at.isoformat() if poll.created_at else None,
+            'updatedAt': poll.updated_at.isoformat() if poll.updated_at else None,
             'isActive': poll.is_active,
             'views': poll.views,
             'hasVoted': bool((voter_id and Vote.objects.filter(poll=poll, voter_id=voter_id).exists()) or (not voter_id and request.user.is_authenticated and Vote.objects.filter(poll=poll, voter_id=str(request.user.id)).exists())),
@@ -126,4 +141,4 @@ class PollResultsView(APIView):
         }
         # cache results for short period; invalidated by signals when votes/options change
         cache.set(cache_key, data, timeout=30)  # 30 seconds default; tune as needed
-        return Response(data)
+        return Response({'poll': data})
