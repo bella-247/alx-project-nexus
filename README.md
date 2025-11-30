@@ -11,7 +11,16 @@ Quick start (development with Docker)
 cp .env.example .env
 ```
 
-2. Build and run with docker-compose:
+2. Build and run with docker-compose.
+
+For a lightweight demo using SQLite (no Postgres required):
+
+```bash
+# uses sqlite and redis (optional)
+docker compose -f docker-compose.sqlite.yml up --build
+```
+
+To run with Postgres (realistic dev environment):
 
 ```bash
 docker compose up --build
@@ -24,8 +33,9 @@ To run without Redis, either remove the `redis` service in `docker-compose.yml` 
 3. API docs will be at `http://localhost:8000/api/docs`
 
 Notes
-- Uses Postgres in docker-compose for realistic development.
-- If you can't run Docker, edit `polls_project/settings.py` to use SQLite.
+- Use SQLite for simple demos and deployments without a hosted DB (see `docker-compose.sqlite.yml`).
+- Use Postgres for realistic development by running the default `docker-compose.yml`.
+- If you can't run Docker, edit `polls_project/settings.py` to ensure `DATABASES` uses SQLite.
 
 Endpoints (high level)
 - `POST /api/polls/` - create a poll with options
