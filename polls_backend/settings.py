@@ -9,12 +9,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY') or 'will-be-changed-in-production'
 
 # Debug env var support
-DEBUG = os.environ.get('DEBUG') == 'True' or os.environ.get('DEBUG') == '1'
+DEBUG = os.environ.get('DEBUG') == 'True'
 
 # Allowed hosts (comma separated)
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS') or os.environ.get('DJANGO_ALLOWED_HOSTS', '*')
-if isinstance(ALLOWED_HOSTS, str):
-    ALLOWED_HOSTS = [h.strip() for h in ALLOWED_HOSTS.split(',') if h.strip()]
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*')
+ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS.split(',') if host.strip()]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -23,6 +22,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "whitenoise.runserver_nostatic",
+    "corsheaders",
     'rest_framework',
     'drf_spectacular',
     'users',
@@ -31,6 +32,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

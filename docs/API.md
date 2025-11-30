@@ -1,3 +1,10 @@
+---
+marp: true
+theme: default
+paginate: true
+backgroundColor: #f8f9fa
+---
+
 # API Reference
 
 This document describes the API endpoints for the Online Poll System backend.
@@ -9,14 +16,21 @@ This document describes the API endpoints for the Online Poll System backend.
 
 - `GET /api/polls/<poll_id>/` — Poll detail with options
 
+---
+
+
 - `POST /api/votes/` — Cast a vote  
   - body: `{"poll": "<poll_uuid>", "option": "<option_uuid>", "voter_id": "<identifier>"}`
 
 - `GET /api/polls/<poll_id>/results/` — Returns option vote counts and total votes. This endpoint uses a short-lived cache for performance and is invalidated automatically when votes or options change.
 
+--- 
+
 ### Duplicate Vote Prevention
 
 The backend enforces one vote per `voter_id` per poll using a unique constraint on `(poll, voter_id)`. Choose a `voter_id` scheme appropriate to your app (user id, session id, hashed ip+ua, etc.).
+
+---
 
 ## Authentication & User Endpoints
 
@@ -29,6 +43,9 @@ The backend enforces one vote per `voter_id` per poll using a unique constraint 
   - body: `{"email": "...", "password": "..."}`
   - response: `{"access": "<jwt>", "refresh": "<jwt>", "user": {"id": "...", "email": "...", "name": "...", "avatar": "...", "created_at": "...", "updated_at": "..."}}`
   - No authentication required.
+
+
+---
 
 - `POST /api/token/refresh/` — Refresh JWT access token  
   - body: `{"refresh": "<refresh_token>"}`

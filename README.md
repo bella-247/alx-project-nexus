@@ -1,4 +1,5 @@
 Online Poll System Backend
+
 ==========================
 
 This repository contains a Django REST backend for an online poll/voting system intended for real-time result computation and scalability.
