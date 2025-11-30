@@ -32,6 +32,18 @@ To run without Redis, either remove the `redis` service in `docker-compose.yml` 
 
 3. API docs will be at `http://localhost:8000/api/docs`
 
+### Required Environment Variables
+
+Set these in your `.env` file (see `.env.example` if available):
+
+- `SECRET_KEY` or `DJANGO_SECRET_KEY`: Django secret key (required for production)
+- `DEBUG` or `DJANGO_DEBUG`: Set to `1` or `True` to enable debug mode (default: enabled for dev)
+- `DJANGO_ALLOWED_HOSTS`: Comma-separated list of allowed hosts (default: `*` or `localhost`)
+- `DATABASE_URL`: Database connection string (Postgres or SQLite). If not set, fallback to PG_* vars or SQLite.
+    - `PG_DB`, `PG_USER`, `PG_PASSWORD`, `PG_HOST`, `PG_PORT`: Used if `DATABASE_URL` is not set (for Postgres)
+- `REDIS_URL` or `REDIS_HOST`: (Optional) Redis connection string for caching
+- `ALLOW_ANONYMOUS_VOTE`: (Optional) Set to `1` to allow unauthenticated voting
+
 Notes
 - Use SQLite for simple demos and deployments without a hosted DB (see `docker-compose.sqlite.yml`).
 - Use Postgres for realistic development by running the default `docker-compose.yml`.
@@ -42,6 +54,9 @@ Endpoints (high level)
 - `GET /api/polls/` - list polls
 - `POST /api/polls/{poll_id}/vote/` - cast a vote (provide `voter_id` and `option_id`)
 - `GET /api/polls/{poll_id}/results/` - get option counts (real-time)
+
+For full API details and authentication endpoints, see [docs/API.md](docs/API.md).
+
 # alx-project-nexus
 
 ## 1. Overview

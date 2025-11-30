@@ -5,12 +5,11 @@ import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
-# Support either SECRET_KEY or DJANGO_SECRET_KEY env var names for convenience
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY') or os.environ.get('SECRET_KEY') or 'change-me-in-production'
+
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY') or 'will-be-changed-in-production'
 
 # Debug env var support
-DEBUG = os.environ.get('DJANGO_DEBUG') == '1' or os.environ.get('DEBUG') == 'True' or os.environ.get('DEBUG') == '1'
+DEBUG = os.environ.get('DEBUG') == 'True' or os.environ.get('DEBUG') == '1'
 
 # Allowed hosts (comma separated)
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS') or os.environ.get('DJANGO_ALLOWED_HOSTS', '*')
@@ -32,6 +31,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
