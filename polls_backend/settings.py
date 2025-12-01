@@ -68,6 +68,8 @@ if DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
     }
+    
+# here the setting shows the optional use of postgres and sqlite database
 elif os.environ.get('PG_DB'):
     DATABASES = {
         'default': {

@@ -2,25 +2,26 @@ version: '3.8'
 services:
   web:
     build: .
-    # migrate, collectstatic then start gunicorn using polls_backend
+    # Run migrations and collectstatic, then start gunicorn.
+    # Use the internal DATABASE_URL env var to point to a sqlite file in a named volume (/data/db.sqlite3).
     command: bash -c "python manage.py migrate --noinput && python manage.py collectstatic --noinput && exec gunicorn polls_backend.wsgi:application --bind 0.0.0.0:8000"
     ports:
       - "8000:8000"
     env_file: .env
     restart: unless-stopped
-    depends_on:
-      - redis
-
-  redis:
-    image: redis:7-alpine
-    restart: unless-stopped
+    # Do not define a local redis service here — use Render's managed Redis by providing
+    # a `REDIS_URL` environment variable (Render sets this when you add a Redis add-on).
+    environment:
+      # Use a sqlite file persisted in a named volume. dj-database-url understands sqlite URLs.
+      - DATABASE_URL=sqlite:////data/db.sqlite3
+      - REDIS_URL=${REDIS_URL}
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - DEBUG=${DEBUG}
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
     volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - .:/app:cached
+      # Persist sqlite file across container restarts
+      - sqlite_data:/data
 
 volumes:
-  redis_data:
+  sqlite_data:

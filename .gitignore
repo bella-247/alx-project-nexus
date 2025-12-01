@@ -11,3 +11,6 @@ media/
 *.egg-info/
 dist/
 build/
+*.mp4
+*.zip
+*$*
