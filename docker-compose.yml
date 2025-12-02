@@ -2,8 +2,8 @@ version: '3.8'
 services:
   web:
     build: .
-    # Use the container's run script which performs migrations and starts gunicorn.
-    command: /bin/bash -lc "./run.sh"
+    # Run migrations and start gunicorn directly (no run.sh)
+    command: /bin/bash -c "python manage.py migrate --noinput && gunicorn polls_backend.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 3 --log-level=info"
     env_file: .env
     restart: unless-stopped
     environment:
