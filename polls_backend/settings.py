@@ -1,19 +1,32 @@
-import os
 from pathlib import Path
 from datetime import timedelta
 import dj_database_url
 
+from .config import (
+    DJANGO_SECRET_KEY,
+    DEBUG,
+    DJANGO_ALLOWED_HOSTS,
+    DATABASE_URL,
+    PG_DB,
+    PG_USER,
+    PG_PASSWORD,
+    PG_HOST,
+    PG_PORT,
+    REDIS_URL,
+    ALLOW_ANONYMOUS_VOTE,
+)
+
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY') or 'will-be-changed-in-production'
+SECRET_KEY = DJANGO_SECRET_KEY
 
 # Debug env var support
-DEBUG = os.environ.get('DEBUG') == 'True'
+DEBUG = DEBUG
 
 # Allowed hosts (comma separated)
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*')
-ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS.split(',') if host.strip()]
+ALLOWED_HOSTS = DJANGO_ALLOWED_HOSTS
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -26,8 +39,8 @@ INSTALLED_APPS = [
     "corsheaders",
     'rest_framework',
     'drf_spectacular',
-    'users',
-    'polls',
+    'users.apps.UsersConfig',
+    'polls.apps.PollsConfig',
 ]
 
 MIDDLEWARE = [
@@ -63,22 +76,19 @@ TEMPLATES = [
 WSGI_APPLICATION = 'polls_backend.wsgi.application'
 
 # Database: use DATABASE_URL if present (recommended in docker-compose). Fallback to PG_* vars or sqlite.
-DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
     }
-    
-# here the setting shows the optional use of postgres and sqlite database
-elif os.environ.get('PG_DB'):
+elif PG_DB:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get('PG_DB'),
-            'USER': os.environ.get('PG_USER', ''),
-            'PASSWORD': os.environ.get('PG_PASSWORD', ''),
-            'HOST': os.environ.get('PG_HOST', 'localhost'),
-            'PORT': os.environ.get('PG_PORT', '5432'),
+            'NAME': PG_DB,
+            'USER': PG_USER or '',
+            'PASSWORD': PG_PASSWORD or '',
+            'HOST': PG_HOST or 'localhost',
+            'PORT': PG_PORT or '5432',
         }
     }
 else:
@@ -121,27 +131,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Use custom user model
 AUTH_USER_MODEL = 'users.User'
 
-REST_FRAMEWORK = {
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-}
-
-# Authentication
-REST_FRAMEWORK.setdefault('DEFAULT_AUTHENTICATION_CLASSES', [
+REST_FRAMEWORK = {}
+REST_FRAMEWORK['DEFAULT_SCHEMA_CLASS'] = 'drf_spectacular.openapi.AutoSchema'
+REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] = [
     'rest_framework_simplejwt.authentication.JWTAuthentication',
     'rest_framework.authentication.SessionAuthentication',
-])
-
-# Default permission: read-only for unauthenticated, write for authenticated
-REST_FRAMEWORK.setdefault('DEFAULT_PERMISSION_CLASSES', [
+]
+REST_FRAMEWORK['DEFAULT_PERMISSION_CLASSES'] = [
     'rest_framework.permissions.IsAuthenticatedOrReadOnly',
-])
-
-# Pagination defaults for list endpoints
-REST_FRAMEWORK.setdefault('DEFAULT_PAGINATION_CLASS', 'rest_framework.pagination.PageNumberPagination')
-REST_FRAMEWORK.setdefault('PAGE_SIZE', 10)
+]
+REST_FRAMEWORK['DEFAULT_PAGINATION_CLASS'] = 'rest_framework.pagination.PageNumberPagination'
+REST_FRAMEWORK['PAGE_SIZE'] = 10
 
 # Allow anonymous voting via env var (set to '1' to allow unauthenticated votes)
-ALLOW_ANONYMOUS_VOTE = os.environ.get('ALLOW_ANONYMOUS_VOTE', '0') == '1'
+ALLOW_ANONYMOUS_VOTE = ALLOW_ANONYMOUS_VOTE
 
 # Simple JWT settings
 SIMPLE_JWT = {
@@ -161,7 +164,6 @@ SPECTACULAR_SETTINGS = {
 }
 
 # Caching (Redis) - optional. If REDIS_URL is provided, use it; otherwise use local memory cache for dev
-REDIS_URL = os.environ.get('REDIS_URL') or os.environ.get('REDIS_HOST')
 if REDIS_URL:
     CACHES = {
         'default': {

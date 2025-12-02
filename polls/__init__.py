@@ -1,0 +1,1 @@
+"""polls package initializer"""
