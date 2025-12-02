@@ -6,6 +6,12 @@ This repository contains a Django REST backend for an online poll/voting system 
 
 Quick start (development with Docker)
 
+**If running locally (not in Docker), you must run migrations before creating users or running the server:**
+
+```bash
+python manage.py migrate
+```
+
 1. Copy environment file:
 
 ```bash
