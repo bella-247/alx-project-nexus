@@ -5,9 +5,10 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-# Install dependencies (use requirements.txt or requirements.lock if you prefer)
-COPY requirements.* /app/
-RUN pip install --no-cache-dir -r requirements.lock || pip install --no-cache-dir -r requirements.txt
+# Install dependencies (use requirements.lock).
+# Copy only the lock file to avoid build failures if requirements.txt is missing.
+COPY requirements.lock /app/
+RUN pip install --no-cache-dir -r /app/requirements.lock
 
 # Copy project code
 COPY . /app
