@@ -2,8 +2,8 @@ FROM python:3.11-slim
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 WORKDIR /app
-COPY requirements.txt /app/
-RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app
-RUN chmod +x /app/run.sh || true
+# Ensure build and run scripts are executable and run the build step
+RUN chmod +x /app/build.sh /app/run.sh || true
+RUN /bin/bash -lc "./build.sh"
 CMD ["/bin/bash", "-lc", "./run.sh"]

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 python manage.py migrate --noinput
-
-gunicorn polls_backend.wsgi:application --bind 0.0.0.0:$PORT --workers 3 --log-level=info
+exec gunicorn polls_backend.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 3 --log-level=info
